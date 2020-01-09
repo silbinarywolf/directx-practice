@@ -57,8 +57,8 @@ func main() {
 		err          d3d11.Error
 	)
 	driverType := d3d11.DRIVER_TYPE_NULL
-	for i, _ := range driverTypes {
-		driverType = driverTypes[i]
+	for driverTypeIndex, _ := range driverTypes {
+		driverType = driverTypes[driverTypeIndex]
 		device, featureLevel, err = d3d11.CreateDevice(
 			0,
 			driverType,
@@ -68,8 +68,10 @@ func main() {
 			d3d11.SDK_VERSION,
 			&gImmediateContext,
 		)
-		if err != nil &&
-			err.Code() == d3d11.E_INVALIDARG {
+		if err != nil {
+			if err.Code() != d3d11.E_INVALIDARG {
+				panic(err)
+			}
 			// DirectX 11.0 platforms will not recognize D3D_FEATURE_LEVEL_11_1 so we need to retry without it
 			device, featureLevel, err = d3d11.CreateDevice(
 				0,
@@ -80,6 +82,11 @@ func main() {
 				d3d11.SDK_VERSION,
 				&gImmediateContext,
 			)
+			if err != nil &&
+				err.Code() != d3d11.E_INVALIDARG {
+				// Fail
+				panic(err)
+			}
 		}
 		fmt.Printf(`
 			Device: %v

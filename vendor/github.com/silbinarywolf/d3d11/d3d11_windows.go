@@ -22,25 +22,9 @@ func CreateDevice(
 	sdkVersion uint32,
 	immediateContext *DeviceContext,
 ) (*Device, FEATURE_LEVEL, Error) {
-	//CreateDevice( nullptr, g_driverType, nullptr, createDeviceFlags, featureLevels, numFeatureLevels,
-	//                                D3D11_SDK_VERSION, &g_pd3dDevice, &g_featureLevel, &g_pImmediateContext );
-	/*
-		HRESULT D3D11CreateDevice(
-		  IDXGIAdapter            *pAdapter,
-		  D3D_DRIVER_TYPE         DriverType,
-		  HMODULE                 Software,
-		  UINT                    Flags,
-		  const D3D_FEATURE_LEVEL *pFeatureLevels,
-		  UINT                    FeatureLevels,
-		  UINT                    SDKVersion,
-		  ID3D11Device            **ppDevice,
-		  D3D_FEATURE_LEVEL       *pFeatureLevel,
-		  ID3D11DeviceContext     **ppImmediateContext
-		);
-	*/
 	// NOTE(Jae): 2020-01-09
-	// Attempt to copy slice to stack array temporarily
-	// for this call
+	// Copy slice to stack array temporarily
+	// so this call works
 	var featureLevelsArr [16]FEATURE_LEVEL
 	for i, featureLevel := range featureLevels {
 		featureLevelsArr[i] = featureLevel
