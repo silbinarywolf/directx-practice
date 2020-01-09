@@ -22,13 +22,6 @@ func CreateDevice(
 	sdkVersion uint32,
 	immediateContext *DeviceContext,
 ) (*Device, FEATURE_LEVEL, Error) {
-	// NOTE(Jae): 2020-01-09
-	// Copy slice to stack array temporarily
-	// so this call works
-	var featureLevelsArr [16]FEATURE_LEVEL
-	for i, featureLevel := range featureLevels {
-		featureLevelsArr[i] = featureLevel
-	}
 	var device *Device
 	var featureLevel FEATURE_LEVEL
 	ret, _, _ := createDevice.Call(
@@ -36,7 +29,7 @@ func CreateDevice(
 		uintptr(driverType),
 		uintptr(software),
 		uintptr(flags),
-		uintptr(unsafe.Pointer(&featureLevelsArr)),
+		uintptr(unsafe.Pointer(&featureLevels[0])),
 		uintptr(uint32(len(featureLevels))),
 		uintptr(sdkVersion),
 		uintptr(unsafe.Pointer(&device)),
