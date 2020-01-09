@@ -27,38 +27,72 @@ func init() {
 
 // https://github.com/walbourn/directx-sdk-samples/blob/master/Direct3D11Tutorials/Tutorial01/Tutorial01.cpp
 func main() {
-	windowHandle, err := openWindow("class name", handleEvent, 0, 0, windowWidth, windowHeight)
-	if err != nil {
-		panic(err)
+	/*var windowHandle w32.HWND
+	var window w32.HWND
+	{
+		var err error
+		windowHandle, err = openWindow("class name", handleEvent, 0, 0, windowWidth, windowHeight)
+		if err != nil {
+			panic(err)
+		}
+		window := w32.HWND(windowHandle)
+		w32.SetWindowText(window, "My New Window")
+		w32.ShowCursor(false)
+	}*/
+
+	driverTypes := []d3d11.DRIVER_TYPE{
+		d3d11.DRIVER_TYPE_HARDWARE,
+		d3d11.DRIVER_TYPE_WARP,
+		d3d11.DRIVER_TYPE_REFERENCE,
 	}
-	window := w32.HWND(windowHandle)
-
-	w32.SetWindowText(window, "My New Window")
-
-	w32.ShowCursor(false)
-
 	featureLevels := []d3d11.FEATURE_LEVEL{
 		d3d11.FEATURE_LEVEL_11_1,
 		d3d11.FEATURE_LEVEL_11_0,
 		d3d11.FEATURE_LEVEL_10_1,
 		d3d11.FEATURE_LEVEL_10_0,
 	}
-	device, featureLevel, err := d3d11.CreateDevice(
-		0,
-		gDriverType,
-		d3d11.HMODULE(window),
-		d3d11.CREATE_DEVICE_DEBUG,
-		featureLevels,
-		d3d11.SDK_VERSION,
-		&gImmediateContext,
+	var (
+		device       *d3d11.Device
+		featureLevel d3d11.FEATURE_LEVEL
+		err          d3d11.Error
 	)
+	driverType := d3d11.DRIVER_TYPE_NULL
+	for i, _ := range driverTypes {
+		driverType = driverTypes[i]
+		device, featureLevel, err = d3d11.CreateDevice(
+			0,
+			driverType,
+			0,
+			d3d11.CREATE_DEVICE_DEBUG,
+			featureLevels,
+			d3d11.SDK_VERSION,
+			&gImmediateContext,
+		)
+		if err != nil &&
+			err.Code() == d3d11.E_INVALIDARG {
+			// DirectX 11.0 platforms will not recognize D3D_FEATURE_LEVEL_11_1 so we need to retry without it
+			device, featureLevel, err = d3d11.CreateDevice(
+				0,
+				driverType,
+				0,
+				d3d11.CREATE_DEVICE_DEBUG,
+				featureLevels[:1],
+				d3d11.SDK_VERSION,
+				&gImmediateContext,
+			)
+		}
+		fmt.Printf(`
+			Device: %v
+			Feature Level: %v
+			Error: %v
+		`, device, featureLevel, err)
+		if err == nil {
+			break
+		}
+	}
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf(`
-		Device: %s
-		Feature Level: %s
-	`, device, featureLevel)
 
 	/*for {
 		// oh no
