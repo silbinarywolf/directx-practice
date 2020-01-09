@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"runtime"
 	"syscall"
 
@@ -12,6 +13,12 @@ import (
 const (
 	windowWidth  = 1280
 	windowHeight = 720
+)
+
+var (
+	gDriverType       = d3d11.DRIVER_TYPE_NULL
+	gFeatureLevel     = d3d11.FEATURE_LEVEL_11_0
+	gImmediateContext d3d11.DeviceContext
 )
 
 func init() {
@@ -30,7 +37,29 @@ func main() {
 
 	w32.ShowCursor(false)
 
-	d3d11.CreateDevice()
+	featureLevels := []d3d11.FEATURE_LEVEL{
+		d3d11.FEATURE_LEVEL_11_1,
+		d3d11.FEATURE_LEVEL_11_0,
+		d3d11.FEATURE_LEVEL_10_1,
+		d3d11.FEATURE_LEVEL_10_0,
+	}
+	device, featureLevel, err := d3d11.CreateDevice(
+		0,
+		gDriverType,
+		d3d11.HMODULE(window),
+		d3d11.CREATE_DEVICE_DEBUG,
+		featureLevels,
+		d3d11.SDK_VERSION,
+		&gImmediateContext,
+	)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf(`
+		Device: %s
+		Feature Level: %s
+	`, device, featureLevel)
+
 	/*for {
 		// oh no
 	}*/
