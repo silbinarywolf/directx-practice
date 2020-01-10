@@ -5,15 +5,15 @@ import (
 	"unsafe"
 )
 
-// IDXGIDevice
-// 54ec77fa-1377-44e6-8c32-88fd5f44c84c
-type IDXGIDevice struct {
-	vtbl *idxgiDeviceVtbl
+// IDXGIAdapter
+// 2411e7e1-12ac-4ccf-bd14-9798e8534dc0
+type IDXGIAdapter struct {
+	vtbl *idxgiAdapterVtbl
 }
 
-var idxgiDevice_UUID = guid{0x54ec77fa, 0x1377, 0x44e6, [8]byte{0x8c, 0x32, 0x88, 0xfd, 0x5f, 0x44, 0xc8, 0x4c}}
+var idxgiAdapter_UUID = guid{0x2411e7e1, 0x12ac, 0x4ccf, [8]byte{0xbd, 0x14, 0x97, 0x98, 0xe8, 0x53, 0x4d, 0xc0}}
 
-type idxgiDeviceVtbl struct {
+type idxgiAdapterVtbl struct {
 	QueryInterface uintptr
 	AddRef         uintptr
 	Release        uintptr
@@ -22,28 +22,26 @@ type idxgiDeviceVtbl struct {
 	SetPrivateDataInterface uintptr
 	GetPrivateData          uintptr
 	GetParent               uintptr
-	GetAdapter              uintptr
-	CreateSurface           uintptr
-	QueryResourceResidency  uintptr
-	SetGPUThreadPriority    uintptr
-	GetGPUThreadPriority    uintptr
+	EnumOutputs             uintptr
+	GetDesc                 uintptr
+	CheckInterfaceSupport   uintptr
 }
 
-func (obj *IDXGIDevice) GetAdapter() (*IDXGIAdapter, Error) {
-	var r *IDXGIAdapter
+func (obj *IDXGIAdapter) GetParent() (*IDXGIFactory1, Error) {
+	var r *IDXGIFactory1
 	ret, _, _ := syscall.Syscall(
-		obj.vtbl.GetAdapter,
-		2,
+		obj.vtbl.GetParent,
+		3,
 		uintptr(unsafe.Pointer(obj)),
+		uintptr(unsafe.Pointer(&idxgiFactory1_UUID)),
 		uintptr(unsafe.Pointer(&r)),
-		0,
 	)
 	return r, toErr(ret)
 }
 
 // Release has to be called when finished using the object to free its
 // associated resources.
-func (obj *IDXGIDevice) Release() uint32 {
+func (obj *IDXGIAdapter) Release() uint32 {
 	ret, _, _ := syscall.Syscall(
 		obj.vtbl.Release,
 		1,

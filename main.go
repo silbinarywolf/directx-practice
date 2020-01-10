@@ -27,18 +27,20 @@ func init() {
 
 // https://github.com/walbourn/directx-sdk-samples/blob/master/Direct3D11Tutorials/Tutorial01/Tutorial01.cpp
 func main() {
-	/*var windowHandle w32.HWND
 	var window w32.HWND
 	{
 		var err error
-		windowHandle, err = openWindow("class name", handleEvent, 0, 0, windowWidth, windowHeight)
+		window, err = openWindow("class name", handleEvent, 0, 0, windowWidth, windowHeight)
 		if err != nil {
 			panic(err)
 		}
-		window := w32.HWND(windowHandle)
 		w32.SetWindowText(window, "My New Window")
 		w32.ShowCursor(false)
-	}*/
+		w32.ShowWindow(window, 1)
+	}
+	if window == 0 {
+		// stop unused warning
+	}
 
 	driverTypes := []d3d11.DRIVER_TYPE{
 		d3d11.DRIVER_TYPE_HARDWARE,
@@ -60,7 +62,7 @@ func main() {
 	for driverTypeIndex, _ := range driverTypes {
 		driverType = driverTypes[driverTypeIndex]
 		device, featureLevel, err = d3d11.CreateDevice(
-			0,
+			nil,
 			driverType,
 			0,
 			d3d11.CREATE_DEVICE_DEBUG,
@@ -74,7 +76,7 @@ func main() {
 			}
 			// DirectX 11.0 platforms will not recognize D3D_FEATURE_LEVEL_11_1 so we need to retry without it
 			device, featureLevel, err = d3d11.CreateDevice(
-				0,
+				nil,
 				driverType,
 				0,
 				d3d11.CREATE_DEVICE_DEBUG,
@@ -102,14 +104,57 @@ func main() {
 	}
 
 	// Obtain DXGI factory from device (since we used 0 for adapter above)
-	//var dxgiFactory d3d11.IDXGIFactory1
+	var dxgiFactory *d3d11.IDXGIFactory1
 	{
-		var dxgiDevice *d3d11.IDXGIDevice
-		if err := device.QueryInterface(&dxgiDevice); err != nil {
+		dxgiDevice, err := device.QueryInterfaceIDXGIDevice()
+		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("IDXGIDevice: %v\n", dxgiDevice)
+		adapter, err := dxgiDevice.GetAdapter()
+		if err != nil {
+			panic(err)
+		}
+		dxgiFactory, err = adapter.GetParent()
+		adapter.Release()
+		dxgiDevice.Release()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf(`
+			IDXGIDevice: %v
+			Adapter: %v
+			dxgiFactory: %v
+			Error: %v
+		`, dxgiDevice, adapter, dxgiFactory, err)
 	}
+
+	// DirectX 11.0 systems
+	var swapChain *d3d11.IDXGISwapChain
+	{
+		sd := d3d11.DXGI_SWAP_CHAIN_DESC{}
+		sd.BufferCount = 1
+		sd.BufferDesc.Width = windowWidth
+		sd.BufferDesc.Height = windowHeight
+		sd.BufferDesc.Format = d3d11.DXGI_FORMAT_R8G8B8A8_UNORM
+		sd.BufferDesc.RefreshRate.Numerator = 60
+		sd.BufferDesc.RefreshRate.Denominator = 1
+		sd.BufferUsage = d3d11.DXGI_USAGE_RENDER_TARGET_OUTPUT
+		sd.OutputWindow = d3d11.HWND(window)
+		sd.SampleDesc.Count = 1
+		sd.SampleDesc.Quality = 0
+		sd.Windowed = d3d11.TRUE
+		swapChain, err = dxgiFactory.CreateSwapChain(device, sd)
+		if err != nil {
+			message := err.Error()
+			panic(message)
+		}
+	}
+
+	fmt.Printf(`
+		dxgiFactory: %v
+		swapChain: %v
+		Error: %v
+	`, dxgiFactory, swapChain, err)
 
 	/*for {
 		// oh no

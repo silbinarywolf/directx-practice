@@ -55,13 +55,14 @@ type deviceVtbl struct {
 	GetExceptionMode                     uintptr
 }
 
-func (obj *Device) QueryInterface(r **IDXGIDevice) Error {
+func (obj *Device) QueryInterfaceIDXGIDevice() (*IDXGIDevice, Error) {
+	var r *IDXGIDevice
 	ret, _, _ := syscall.Syscall(
 		obj.vtbl.QueryInterface,
 		3,
 		uintptr(unsafe.Pointer(obj)),
 		uintptr(unsafe.Pointer(&idxgiDevice_UUID)),
-		uintptr(unsafe.Pointer(r)),
+		uintptr(unsafe.Pointer(&r)),
 	)
-	return toErr(ret)
+	return r, toErr(ret)
 }

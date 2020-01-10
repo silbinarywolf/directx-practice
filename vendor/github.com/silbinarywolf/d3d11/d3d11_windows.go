@@ -14,7 +14,7 @@ var (
 // CreateDevice
 // https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-d3d11createdevice
 func CreateDevice(
-	pAdapter IDXGIAdapter,
+	pAdapter *IDXGIAdapter,
 	driverType DRIVER_TYPE,
 	software HMODULE,
 	flags uint32,
@@ -25,7 +25,7 @@ func CreateDevice(
 	var device *Device
 	var featureLevel FEATURE_LEVEL
 	ret, _, _ := createDevice.Call(
-		uintptr(pAdapter),
+		uintptr(unsafe.Pointer(pAdapter)),
 		uintptr(driverType),
 		uintptr(software),
 		uintptr(flags),

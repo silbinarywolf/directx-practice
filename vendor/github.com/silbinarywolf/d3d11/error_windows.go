@@ -1,6 +1,8 @@
 package d3d11
 
-import "strconv"
+import (
+	"strconv"
+)
 
 // Error is returned by all Direct3D11 functions. It encapsulates the error code
 // returned by Direct3D. If a function succeeds it will return nil as the Error
