@@ -7,9 +7,17 @@ type (
 
 	// D3D
 	IDXGIAdapter  handle
-	Device        handle
 	DeviceContext handle
+	IDXGIFactory1 handle
 )
+
+// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/iid
+type guid struct {
+	data1 uint32
+	data2 uint16
+	data3 uint16
+	data4 [8]byte
+}
 
 const (
 	SDK_VERSION = 7

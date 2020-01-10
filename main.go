@@ -101,6 +101,16 @@ func main() {
 		panic(err)
 	}
 
+	// Obtain DXGI factory from device (since we used 0 for adapter above)
+	//var dxgiFactory d3d11.IDXGIFactory1
+	{
+		var dxgiDevice *d3d11.IDXGIDevice
+		if err := device.QueryInterface(&dxgiDevice); err != nil {
+			panic(err)
+		}
+		fmt.Printf("IDXGIDevice: %v\n", dxgiDevice)
+	}
+
 	/*for {
 		// oh no
 	}*/
