@@ -156,9 +156,9 @@ func main() {
 		Error: %v
 	`, dxgiFactory, swapChain, err)
 
-	/*for {
-		// oh no
-	}*/
+	//for {
+	// oh no
+	//}
 }
 
 func openWindow(

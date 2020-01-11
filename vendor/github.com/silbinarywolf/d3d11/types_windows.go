@@ -5,11 +5,13 @@ type (
 	// Windows
 	HMODULE handle
 	HWND    handle
+	BOOL    uint32
 
 	// D3D
 	DeviceContext handle
 )
 
+// guid describes a structure used to describe an identifier for a MAPI interface.
 // https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/iid
 type guid struct {
 	data1 uint32
@@ -21,8 +23,6 @@ type guid struct {
 const (
 	SDK_VERSION = 7
 )
-
-type BOOL uint32
 
 const (
 	FALSE BOOL = 0
