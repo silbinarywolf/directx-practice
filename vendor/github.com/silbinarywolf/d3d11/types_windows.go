@@ -13,6 +13,8 @@ type (
 
 // guid describes a structure used to describe an identifier for a MAPI interface.
 // https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/iid
+//
+// implemented here too: https://github.com/golang/sys/blob/master/windows/types_windows.go#L1216
 type guid struct {
 	data1 uint32
 	data2 uint16
@@ -234,10 +236,39 @@ const (
 	DXGI_USAGE_UNORDERED_ACCESS     DXGI_USAGE = 1 << (6 + 4)
 )
 
-/*#define DXGI_USAGE_SHADER_INPUT             ( 1L << (0 + 4) )
-#define DXGI_USAGE_RENDER_TARGET_OUTPUT     ( 1L << (1 + 4) )
-#define DXGI_USAGE_BACK_BUFFER              ( 1L << (2 + 4) )
-#define DXGI_USAGE_SHARED                   ( 1L << (3 + 4) )
-#define DXGI_USAGE_READ_ONLY                ( 1L << (4 + 4) )
-#define DXGI_USAGE_DISCARD_ON_PRESENT       ( 1L << (5 + 4) )
-#define DXGI_USAGE_UNORDERED_ACCESS         ( 1L << (6 + 4) )*/
+type DXGI_MWA uint32
+
+const (
+	DXGI_MWA_NO_WINDOW_CHANGES DXGI_MWA = 1 << 0
+	DXGI_MWA_NO_ALT_ENTER      DXGI_MWA = 1 << 1
+	DXGI_MWA_NO_PRINT_SCREEN   DXGI_MWA = 1 << 2
+	DXGI_MWA_VALID             DXGI_MWA = 0x7
+)
+
+type VIEWPORT struct {
+	TopLeftX float32
+	TopLeftY float32
+	Width    float32
+	Height   float32
+	MinDepth float32
+	MaxDepth float32
+}
+
+type RTV_DIMENSION uint32
+
+const (
+	RTV_DIMENSION_UNKNOWN          = 0
+	RTV_DIMENSION_BUFFER           = 1
+	RTV_DIMENSION_TEXTURE1D        = 2
+	RTV_DIMENSION_TEXTURE1DARRAY   = 3
+	RTV_DIMENSION_TEXTURE2D        = 4
+	RTV_DIMENSION_TEXTURE2DARRAY   = 5
+	RTV_DIMENSION_TEXTURE2DMS      = 6
+	RTV_DIMENSION_TEXTURE2DMSARRAY = 7
+	RTV_DIMENSION_TEXTURE3D        = 8
+)
+
+type RENDER_TARGET_VIEW_DESC struct {
+	Format        DXGI_FORMAT
+	ViewDimension RTV_DIMENSION
+}

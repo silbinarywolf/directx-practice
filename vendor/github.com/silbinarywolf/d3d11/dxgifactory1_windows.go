@@ -45,3 +45,30 @@ func (obj *IDXGIFactory1) CreateSwapChain(device *Device, desc DXGI_SWAP_CHAIN_D
 	)
 	return r, toErr(ret)
 }
+
+func (obj *IDXGIFactory1) MakeWindowAssociation(window HWND, flags DXGI_MWA) Error {
+	ret, _, _ := syscall.Syscall6(
+		obj.vtbl.MakeWindowAssociation,
+		3,
+		uintptr(unsafe.Pointer(obj)),
+		uintptr(window),
+		uintptr(flags),
+		0,
+		0,
+		0,
+	)
+	return toErr(ret)
+}
+
+// Release has to be called when finished using the object to free its
+// associated resources.
+func (obj *IDXGIFactory1) Release() uint32 {
+	ret, _, _ := syscall.Syscall(
+		obj.vtbl.Release,
+		1,
+		uintptr(unsafe.Pointer(obj)),
+		0,
+		0,
+	)
+	return uint32(ret)
+}

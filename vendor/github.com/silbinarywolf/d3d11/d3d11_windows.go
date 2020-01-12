@@ -20,9 +20,9 @@ func CreateDevice(
 	flags uint32,
 	featureLevels []FEATURE_LEVEL,
 	sdkVersion uint32,
-	immediateContext *DeviceContext,
-) (*Device, FEATURE_LEVEL, Error) {
+) (*Device, FEATURE_LEVEL, *DeviceContext, Error) {
 	var device *Device
+	var immediateContext *DeviceContext
 	var featureLevel FEATURE_LEVEL
 	ret, _, _ := createDevice.Call(
 		uintptr(unsafe.Pointer(pAdapter)),
@@ -36,5 +36,5 @@ func CreateDevice(
 		uintptr(unsafe.Pointer(&featureLevel)),
 		uintptr(unsafe.Pointer(&immediateContext)),
 	)
-	return device, featureLevel, toErr(ret)
+	return device, featureLevel, immediateContext, toErr(ret)
 }

@@ -1,5 +1,10 @@
 package d3d11
 
+import (
+	"syscall"
+	"unsafe"
+)
+
 // IDXGISwapChain
 // 310d36a0-d2e7-4c0a-aa04-6a9d23b8886a
 type IDXGISwapChain struct {
@@ -28,4 +33,22 @@ type idxgiSwapChainVtbl struct {
 	GetContainingOutput     uintptr
 	GetFrameStatistics      uintptr
 	GetLastPresentCount     uintptr
+}
+
+// ID3D11Texture2D* pBackBuffer = nullptr;
+// hr = g_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), reinterpret_cast<void**>( &pBackBuffer ) );
+
+func (obj *IDXGISwapChain) GetBuffer(buffer uint32) (*ID3D11Texture2D, Error) {
+	var r *ID3D11Texture2D
+	ret, _, _ := syscall.Syscall6(
+		obj.vtbl.GetBuffer,
+		4,
+		uintptr(unsafe.Pointer(obj)),
+		uintptr(buffer),
+		uintptr(unsafe.Pointer(&id3d11Texture2D_UUID)),
+		uintptr(unsafe.Pointer(&r)),
+		0,
+		0,
+	)
+	return r, toErr(ret)
 }

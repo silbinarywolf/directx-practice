@@ -18,7 +18,7 @@ const (
 var (
 	gDriverType       = d3d11.DRIVER_TYPE_NULL
 	gFeatureLevel     = d3d11.FEATURE_LEVEL_11_0
-	gImmediateContext d3d11.DeviceContext
+	gImmediateContext *d3d11.DeviceContext
 )
 
 func init() {
@@ -61,28 +61,26 @@ func main() {
 	driverType := d3d11.DRIVER_TYPE_NULL
 	for driverTypeIndex, _ := range driverTypes {
 		driverType = driverTypes[driverTypeIndex]
-		device, featureLevel, err = d3d11.CreateDevice(
+		device, featureLevel, gImmediateContext, err = d3d11.CreateDevice(
 			nil,
 			driverType,
 			0,
 			d3d11.CREATE_DEVICE_DEBUG,
 			featureLevels,
 			d3d11.SDK_VERSION,
-			&gImmediateContext,
 		)
 		if err != nil {
 			if err.Code() != d3d11.E_INVALIDARG {
 				panic(err)
 			}
 			// DirectX 11.0 platforms will not recognize D3D_FEATURE_LEVEL_11_1 so we need to retry without it
-			device, featureLevel, err = d3d11.CreateDevice(
+			device, featureLevel, gImmediateContext, err = d3d11.CreateDevice(
 				nil,
 				driverType,
 				0,
 				d3d11.CREATE_DEVICE_DEBUG,
 				featureLevels[:1],
 				d3d11.SDK_VERSION,
-				&gImmediateContext,
 			)
 			if err != nil &&
 				err.Code() != d3d11.E_INVALIDARG {
@@ -145,16 +143,65 @@ func main() {
 		sd.Windowed = d3d11.TRUE
 		swapChain, err = dxgiFactory.CreateSwapChain(device, sd)
 		if err != nil {
-			message := err.Error()
-			panic(message)
+			panic(err.Error())
 		}
 	}
+
+	// Note this tutorial doesn't handle full-screen swapchains so we block the ALT+ENTER shortcut
+	dxgiFactory.MakeWindowAssociation(d3d11.HWND(window), d3d11.DXGI_MWA_NO_ALT_ENTER)
+	dxgiFactory.Release()
 
 	fmt.Printf(`
 		dxgiFactory: %v
 		swapChain: %v
 		Error: %v
 	`, dxgiFactory, swapChain, err)
+	backBuffer, err := swapChain.GetBuffer(0)
+	if err != nil {
+		panic(err.Error())
+	}
+	renderTargetView, err := device.CreateRenderTargetView(backBuffer, nil)
+	backBuffer.Release()
+	if err != nil {
+		panic(err.Error())
+	}
+	/*gImmediateContext.OMSetRenderTargets(1, &renderTargetView, nil)
+	gImmediateContext.RSSetViewports(1, d3d11.VIEWPORT{
+		Width:    windowWidth,
+		Height:   windowHeight,
+		MinDepth: 0.0,
+		MaxDepth: 0.0,
+		TopLeftX: 0,
+		TopLeftY: 0,
+	})*/
+	fmt.Printf(`
+		renderTargetView: %v
+	`, renderTargetView)
+	/*
+			ID3D11Texture2D* pBackBuffer = nullptr;
+		    hr = g_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), reinterpret_cast<void**>( &pBackBuffer ) );
+		    if( FAILED( hr ) )
+		        return hr;
+
+		    hr = g_pd3dDevice->CreateRenderTargetView( pBackBuffer, nullptr, &g_pRenderTargetView );
+		    pBackBuffer->Release();
+		    if( FAILED( hr ) )
+		        return hr;
+
+		    g_pImmediateContext->OMSetRenderTargets( 1, &g_pRenderTargetView, nullptr );
+
+		    // Setup the viewport
+		    D3D11_VIEWPORT vp;
+		    vp.Width = (FLOAT)width;
+		    vp.Height = (FLOAT)height;
+		    vp.MinDepth = 0.0f;
+		    vp.MaxDepth = 1.0f;
+		    vp.TopLeftX = 0;
+		    vp.TopLeftY = 0;
+		    g_pImmediateContext->RSSetViewports( 1, &vp );
+
+		    return S_OK;
+	*/
 
 	//for {
 	// oh no

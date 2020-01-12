@@ -66,3 +66,18 @@ func (obj *Device) QueryInterfaceIDXGIDevice() (*IDXGIDevice, Error) {
 	)
 	return r, toErr(ret)
 }
+
+func (obj *Device) CreateRenderTargetView(backBuffer *ID3D11Texture2D, desc *RENDER_TARGET_VIEW_DESC) (*ID3D11RenderTargetView, Error) {
+	var r *ID3D11RenderTargetView
+	ret, _, _ := syscall.Syscall6(
+		obj.vtbl.CreateRenderTargetView,
+		4,
+		uintptr(unsafe.Pointer(obj)),
+		uintptr(unsafe.Pointer(backBuffer)),
+		uintptr(unsafe.Pointer(desc)),
+		uintptr(unsafe.Pointer(&id3d11RenderTargetView_UUID)),
+		uintptr(unsafe.Pointer(&r)),
+		0,
+	)
+	return r, toErr(ret)
+}
