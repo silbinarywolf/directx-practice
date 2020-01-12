@@ -52,3 +52,13 @@ func (obj *IDXGISwapChain) GetBuffer(buffer uint32) (*ID3D11Texture2D, Error) {
 	)
 	return r, toErr(ret)
 }
+
+func (obj *IDXGISwapChain) Present(syncInterval uint32, flags uint32) {
+	syscall.Syscall(
+		obj.vtbl.Present,
+		3,
+		uintptr(unsafe.Pointer(obj)),
+		uintptr(syncInterval),
+		uintptr(flags),
+	)
+}

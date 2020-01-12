@@ -146,12 +146,22 @@ func (obj *DeviceContext) OMSetRenderTargets(numViews uint32, renderTargetViews 
 	)
 }
 
-func (obj *DeviceContext) RSSetViewports(numViewports uint32, viewports **VIEWPORT) {
+func (obj *DeviceContext) RSSetViewports(numViewports uint32, viewports *VIEWPORT) {
 	syscall.Syscall(
 		obj.vtbl.RSSetViewports,
 		3,
 		uintptr(unsafe.Pointer(obj)),
 		uintptr(numViewports),
 		uintptr(unsafe.Pointer(viewports)),
+	)
+}
+
+func (obj *DeviceContext) ClearRenderTargetView(renderTargetView *ID3D11RenderTargetView, colorRGBA [4]float32) {
+	syscall.Syscall(
+		obj.vtbl.ClearRenderTargetView,
+		3,
+		uintptr(unsafe.Pointer(obj)),
+		uintptr(unsafe.Pointer(renderTargetView)),
+		uintptr(unsafe.Pointer(&colorRGBA[0])),
 	)
 }

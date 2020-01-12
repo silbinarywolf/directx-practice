@@ -15,10 +15,9 @@ const (
 	windowHeight = 720
 )
 
-var (
-	gDriverType       = d3d11.DRIVER_TYPE_NULL
-	gFeatureLevel     = d3d11.FEATURE_LEVEL_11_0
-	gImmediateContext *d3d11.DeviceContext
+const (
+	gDriverType   = d3d11.DRIVER_TYPE_NULL
+	gFeatureLevel = d3d11.FEATURE_LEVEL_11_0
 )
 
 func init() {
@@ -54,14 +53,15 @@ func main() {
 		d3d11.FEATURE_LEVEL_10_0,
 	}
 	var (
-		device       *d3d11.Device
-		featureLevel d3d11.FEATURE_LEVEL
-		err          d3d11.Error
+		device           *d3d11.Device
+		featureLevel     d3d11.FEATURE_LEVEL
+		immediateContext *d3d11.DeviceContext
+		err              d3d11.Error
 	)
 	driverType := d3d11.DRIVER_TYPE_NULL
 	for driverTypeIndex, _ := range driverTypes {
 		driverType = driverTypes[driverTypeIndex]
-		device, featureLevel, gImmediateContext, err = d3d11.CreateDevice(
+		device, featureLevel, immediateContext, err = d3d11.CreateDevice(
 			nil,
 			driverType,
 			0,
@@ -74,7 +74,7 @@ func main() {
 				panic(err)
 			}
 			// DirectX 11.0 platforms will not recognize D3D_FEATURE_LEVEL_11_1 so we need to retry without it
-			device, featureLevel, gImmediateContext, err = d3d11.CreateDevice(
+			device, featureLevel, immediateContext, err = d3d11.CreateDevice(
 				nil,
 				driverType,
 				0,
@@ -165,7 +165,7 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	gImmediateContext.OMSetRenderTargets(1, &renderTargetView, nil)
+	immediateContext.OMSetRenderTargets(1, &renderTargetView, nil)
 	viewport := &d3d11.VIEWPORT{
 		Width:    windowWidth,
 		Height:   windowHeight,
@@ -174,41 +174,27 @@ func main() {
 		TopLeftX: 0,
 		TopLeftY: 0,
 	}
-	gImmediateContext.RSSetViewports(1, &viewport)
+	immediateContext.RSSetViewports(1, viewport)
 	fmt.Printf(`
 		renderTargetView: %v
 		viewports: %v
 	`, renderTargetView, viewport)
 
-	/*
-			ID3D11Texture2D* pBackBuffer = nullptr;
-		    hr = g_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), reinterpret_cast<void**>( &pBackBuffer ) );
-		    if( FAILED( hr ) )
-		        return hr;
-
-		    hr = g_pd3dDevice->CreateRenderTargetView( pBackBuffer, nullptr, &g_pRenderTargetView );
-		    pBackBuffer->Release();
-		    if( FAILED( hr ) )
-		        return hr;
-
-		    g_pImmediateContext->OMSetRenderTargets( 1, &g_pRenderTargetView, nullptr );
-
-		    // Setup the viewport
-		    D3D11_VIEWPORT vp;
-		    vp.Width = (FLOAT)width;
-		    vp.Height = (FLOAT)height;
-		    vp.MinDepth = 0.0f;
-		    vp.MaxDepth = 1.0f;
-		    vp.TopLeftX = 0;
-		    vp.TopLeftY = 0;
-		    g_pImmediateContext->RSSetViewports( 1, &vp );
-
-		    return S_OK;
-	*/
-
-	//for {
-	// oh no
-	//}
+	//
+	var msg w32.MSG
+	for msg.Message != w32.WM_QUIT {
+		if w32.PeekMessage(&msg, 0, 0, 0, w32.PM_REMOVE) {
+			w32.TranslateMessage(&msg)
+			w32.DispatchMessage(&msg)
+			fmt.Printf("message %d\n", msg.Message)
+		} else {
+			// Just clear the backbuffer
+			var midnightBlue = [4]float32{0.098039225, 0.098039225, 0.439215720, 1.000000000}
+			immediateContext.ClearRenderTargetView(renderTargetView, midnightBlue)
+			swapChain.Present(0, 0)
+			fmt.Printf("render\n")
+		}
+	}
 }
 
 func openWindow(
@@ -244,8 +230,10 @@ func openWindow(
 
 func handleEvent(window w32.HWND, message uint32, w, l uintptr) uintptr {
 	switch message {
-	case w32.WM_PAINT:
-		return 1
+	/*case w32.WM_PAINT:
+	hdc = BeginPaint(window, &ps)
+	EndPaint(window, &ps)
+	return 1*/
 	case w32.WM_KEYDOWN:
 		if !isKeyRepeat(l) {
 			switch w {
