@@ -1,6 +1,10 @@
 package d3d11
 
 const (
+	SIMULTANEOUS_RENDER_TARGET_COUNT = 8
+)
+
+const (
 	// S_OK indicates that no error occurred.
 	S_OK = 0
 

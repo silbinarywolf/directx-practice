@@ -75,8 +75,8 @@ func (obj *Device) CreateRenderTargetView(backBuffer *ID3D11Texture2D, desc *REN
 		uintptr(unsafe.Pointer(obj)),
 		uintptr(unsafe.Pointer(backBuffer)),
 		uintptr(unsafe.Pointer(desc)),
-		uintptr(unsafe.Pointer(&id3d11RenderTargetView_UUID)),
 		uintptr(unsafe.Pointer(&r)),
+		0,
 		0,
 	)
 	return r, toErr(ret)

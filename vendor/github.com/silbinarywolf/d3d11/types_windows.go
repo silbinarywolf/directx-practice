@@ -6,9 +6,6 @@ type (
 	HMODULE handle
 	HWND    handle
 	BOOL    uint32
-
-	// D3D
-	DeviceContext handle
 )
 
 // guid describes a structure used to describe an identifier for a MAPI interface.

@@ -165,18 +165,21 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	/*gImmediateContext.OMSetRenderTargets(1, &renderTargetView, nil)
-	gImmediateContext.RSSetViewports(1, d3d11.VIEWPORT{
+	gImmediateContext.OMSetRenderTargets(1, &renderTargetView, nil)
+	viewport := &d3d11.VIEWPORT{
 		Width:    windowWidth,
 		Height:   windowHeight,
 		MinDepth: 0.0,
 		MaxDepth: 0.0,
 		TopLeftX: 0,
 		TopLeftY: 0,
-	})*/
+	}
+	gImmediateContext.RSSetViewports(1, &viewport)
 	fmt.Printf(`
 		renderTargetView: %v
-	`, renderTargetView)
+		viewports: %v
+	`, renderTargetView, viewport)
+
 	/*
 			ID3D11Texture2D* pBackBuffer = nullptr;
 		    hr = g_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), reinterpret_cast<void**>( &pBackBuffer ) );
